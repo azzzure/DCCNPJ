@@ -11,10 +11,10 @@ int main() {
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	SOCKET clientSocket = socket(PF_INET, SOCK_DGRAM, 0);//´´½¨Ì×½Ó×Ö
-	SOCKADDR_IN serverAddr;//¶¨ÒåµØÖ·½á¹¹Ìå±äÁ¿
-	serverAddr.sin_family = AF_INET;//Ğ­Òé×å
-	serverAddr.sin_port = htons(_MY_PORT);//¶Ë¿ÚºÅ
+	SOCKET clientSocket = socket(PF_INET, SOCK_DGRAM, 0);//åˆ›å»ºå¥—æ¥å­—
+	SOCKADDR_IN serverAddr;//å®šä¹‰åœ°å€ç»“æ„ä½“å˜é‡
+	serverAddr.sin_family = AF_INET;//åè®®æ—
+	serverAddr.sin_port = htons(_MY_PORT);//ç«¯å£å·
 	serverAddr.sin_addr.S_un.S_addr = inet_addr("127.0.0.1");
 	//bind(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));
 
@@ -25,10 +25,10 @@ int main() {
 	SOCKADDR_IN _addrClient;//???
 	int len = sizeof(SOCKADDR);
 	string command;
-	cout << "¿Í»§¶Ë" << endl;
+	cout << "å®¢æˆ·ç«¯" << endl;
 
 	init(clientSocket, serverAddr);
-	//³õÊ¼»¯£¬µÃµ½GUID
+	//åˆå§‹åŒ–ï¼Œå¾—åˆ°GUID
 
 	HANDLE hThread = CreateThread(NULL, 0, Fun, (LPVOID*)&clientSocket, 0, NULL);
 	//CloseHandle(hThread);
@@ -46,14 +46,14 @@ int main() {
 			Exit();
 		}
 		case _LIST_CHANNEL:
-			cout << "ÁĞ³öÆµµÀ" << endl;
+			cout << "åˆ—å‡ºé¢‘é“" << endl;
 			data->command = _LIST_CHANNEL;
 			data->guid = guid;
 			*data->message = '\0';
 			sendto(clientSocket, (char *)data, 28, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
 			break;
 		case _JOIN_CHANNEL:
-			cout << "¼ÓÈëÆµµÀ" << endl;
+			cout << "åŠ å…¥é¢‘é“" << endl;
 			cin >> channelname;
 			cin >> userid;
 			p1 = channelname.size();
@@ -91,13 +91,13 @@ int main() {
 	return 0;
 }
 void help_message() {
-	cout << "¿Í»§¶Ë°ïÖúĞÅÏ¢" << endl;
-	cout << "join channel username ÒÔusername¼ÓÈëÁÄÌìÊÒchannelÖĞ" << endl;
-	cout << "channels ÁĞ³öÏÖÓĞµÄÁÄÌìÊÒ" << endl;
-	cout << "list ÁĞ³öµ±Ç°ÁÄÌìÊÒµÄËùÓĞÓÃ»§" << endl;
-	cout << "msg userid your_message_here ¸øÓÃ»§·¢ËÍË½ÈËÏûÏ¢" << endl;
-	cout << "leave Àë¿ªÁÄÌìÊÒ" << endl;
-	cout << "quit ÍË³ö±¾³ÌĞò" << endl;
+	cout << "å®¢æˆ·ç«¯å¸®åŠ©ä¿¡æ¯" << endl;
+	cout << "join channel username ä»¥usernameåŠ å…¥èŠå¤©å®¤channelä¸­" << endl;
+	cout << "channels åˆ—å‡ºç°æœ‰çš„èŠå¤©å®¤" << endl;
+	cout << "list åˆ—å‡ºå½“å‰èŠå¤©å®¤çš„æ‰€æœ‰ç”¨æˆ·" << endl;
+	cout << "msg userid your_message_here ç»™ç”¨æˆ·å‘é€ç§äººæ¶ˆæ¯" << endl;
+	cout << "leave ç¦»å¼€èŠå¤©å®¤" << endl;
+	cout << "quit é€€å‡ºæœ¬ç¨‹åº" << endl;
 	cout << "" << endl;
 
 }
@@ -134,13 +134,13 @@ void init(SOCKET clientSocket, SOCKADDR_IN serverAddr) {
 		if (recvDataSize != -1) {
 			data = (Data*)receiveBuff;
 			guid = data->guid;
-			cout << "³É¹¦Á¬½Óµ½·şÎñ¶Ë£¡·ÖÅäµÄguidÎª"<<hex<< data->guid<< endl;
+			cout << "æˆåŠŸè¿æ¥åˆ°æœåŠ¡ç«¯ï¼åˆ†é…çš„guidä¸º"<<hex<< data->guid<< endl;
 			return; 
 		}
 	}
 }
 
-//Ïß³Ì£¬ÓÃÓÚ½ÓÊÜ·şÎñÆ÷·¢»ØÀ´µÄÏûÏ¢
+//çº¿ç¨‹ï¼Œç”¨äºæ¥å—æœåŠ¡å™¨å‘å›æ¥çš„æ¶ˆæ¯
 DWORD WINAPI Fun(LPVOID lpParamter)
 {
 	SOCKADDR_IN clientAddr;//???
@@ -158,29 +158,29 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 			int clientCommand = data_parse((Data *)receiveBuff);
 			switch (clientCommand) {
 			case _LIST_CHANNEL:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºÁĞ³öÁÄÌìÊÒ" << endl;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šåˆ—å‡ºèŠå¤©å®¤" << endl;
 				for (int i = 0; i < data->p1; i++) {
 					cout << data->message+i * 129 << endl;
 				}
 				break;
 			case _JOIN_CHANNEL:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£º¼ÓÈëÁËÁÄÌìÊÒ" << endl;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šåŠ å…¥äº†èŠå¤©å®¤" << endl;
 				if (data->p1) {
-					//¼ÓÈëÁËÁÄÌìÊÒ
+					//åŠ å…¥äº†èŠå¤©å®¤
 					;
 				}
 				else {
-					cout << "¼ÓÈë´íÎó£¬¿ÉÄÜÊÇÃ»ÓĞ¶ÔÓ¦µÄÁÄÌìÊÒ" << endl;
+					cout << "åŠ å…¥é”™è¯¯ï¼Œå¯èƒ½æ˜¯æ²¡æœ‰å¯¹åº”çš„èŠå¤©å®¤" << endl;
 				}
 				break;
 			case _LIST_USER:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºÁĞ³öËùÓĞÓÃ»§" << endl;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šåˆ—å‡ºæ‰€æœ‰ç”¨æˆ·" << endl;
 				break;
 			case _PRIVATE_MSG:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºË½ÁÄ" << endl;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šç§èŠ" << endl;
 				break;
 			case _LEAVE:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºÀë¿ª" << endl;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šç¦»å¼€" << endl;
 				break;
 			case _MESSAGE:
 
@@ -193,7 +193,7 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 				break;
 
 			default:
-				cout << "·şÎñÆ÷·¢ÁË¸öÆ¨" << endl;
+				cout << "æœåŠ¡å™¨å‘äº†ä¸ªå±" << endl;
 				break;
 			}
 		}

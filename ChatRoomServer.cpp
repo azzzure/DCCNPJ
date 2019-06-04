@@ -12,10 +12,10 @@ int main() {
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	int serverSocket = socket(PF_INET, SOCK_DGRAM, 0);//´´½¨Ì×½Ó×Ö
-	SOCKADDR_IN addr;//¶¨ÒåµØÖ·½á¹¹Ìå±äÁ¿
-	addr.sin_family = AF_INET;//Ğ­Òé×å
-	addr.sin_port = htons(_MY_PORT);//¶Ë¿ÚºÅ
+	int serverSocket = socket(PF_INET, SOCK_DGRAM, 0);//åˆ›å»ºå¥—æ¥å­—
+	SOCKADDR_IN addr;//å®šä¹‰åœ°å€ç»“æ„ä½“å˜é‡
+	addr.sin_family = AF_INET;//åè®®æ—
+	addr.sin_port = htons(_MY_PORT);//ç«¯å£å·
 	addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	bind(serverSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));
 	char receiveBuff[1420];
@@ -23,7 +23,7 @@ int main() {
 	SOCKADDR_IN _addrClient;//???
 	int len = sizeof(SOCKADDR);
 	string command;
-	cout << "·şÎñ¶Ë" << endl;
+	cout << "æœåŠ¡ç«¯" << endl;
 	help_message();
 	int pid=_getpid();
 	cout <<"pid ="<< pid << endl;
@@ -59,7 +59,7 @@ int main() {
 				break;
 			case _FIRST_CONNECT:
 				guid++;
-				cout << "ĞÂÓÃ»§µÄ¼ÓÈë£¬ÎªÆä·ÖÅäGUIDÎª" << guid<< endl;
+				cout << "æ–°ç”¨æˆ·çš„åŠ å…¥ï¼Œä¸ºå…¶åˆ†é…GUIDä¸º" << guid<< endl;
 
 				add_to_user(guid, addrClient);
 				sendMessage = make_message(_FIRST_CONNECT, 0);
@@ -99,14 +99,14 @@ int main() {
 	return 0;
 }
 void help_message() {
-	cout << "quit ÍË³ö±¾³ÌĞò" << endl;
-	cout << "openchannel channelName :¿ªÍ¨ĞÂµÄÁÄÌìÊÒ" << endl;
-	cout << "channels ÁĞ³öÏÖÓĞµÄÁÄÌìÊÒ" << endl;
-	cout << "enterchannel channelName ½øÈëÏÖÓĞµÄÁÄÌìÊÒÖĞ" << endl;
-	cout << "list ÁĞ³öµ±Ç°ÁÄÌìÊÒµÄËùÓĞÓÃ»§" << endl;
-	cout << "kickout userid ½«ÓÃ»§Ìß³öÁÄÌìÊÒ" << endl;
-	cout << "leave Àë¿ªÁÄÌìÊÒ" << endl;
-	cout << "closechannel channelname ¹Ø±ÕÁÄÌìÊÒ" << endl;
+	cout << "quit é€€å‡ºæœ¬ç¨‹åº" << endl;
+	cout << "openchannel channelName :å¼€é€šæ–°çš„èŠå¤©å®¤" << endl;
+	cout << "channels åˆ—å‡ºç°æœ‰çš„èŠå¤©å®¤" << endl;
+	cout << "enterchannel channelName è¿›å…¥ç°æœ‰çš„èŠå¤©å®¤ä¸­" << endl;
+	cout << "list åˆ—å‡ºå½“å‰èŠå¤©å®¤çš„æ‰€æœ‰ç”¨æˆ·" << endl;
+	cout << "kickout userid å°†ç”¨æˆ·è¸¢å‡ºèŠå¤©å®¤" << endl;
+	cout << "leave ç¦»å¼€èŠå¤©å®¤" << endl;
+	cout << "closechannel channelname å…³é—­èŠå¤©å®¤" << endl;
 	cout << "" << endl;
 	cout << "" << endl;
 
@@ -136,30 +136,30 @@ Data * make_message(int command,int p1) {
 	case _LIST_CHANNEL:
 		data->command = _LIST_CHANNEL;
 		data->guid = NULL;
-		data->p1 = channel.size();//µ±Ç°channelµÄÊıÁ¿
+		data->p1 = channel.size();//å½“å‰channelçš„æ•°é‡
 		for (int i = 0; i < data->p1;i++ ) {
 			strcpy(data->message + 129 * i, channel[i]->name);
 
 		}
 		break;
-		//³¬¹ıÁËµÈÒ»ÏÂÔÙËµ
+		//è¶…è¿‡äº†ç­‰ä¸€ä¸‹å†è¯´
 	case _JOIN_CHANNEL:
 		if (p1) {
-			//³É¹¦¼ÓÈëÁËÁÄÌìÊÒ
+			//æˆåŠŸåŠ å…¥äº†èŠå¤©å®¤
 			;
 		}
 		else {
-			//Î´ÄÜ³É¹¦¼ÓÈëÁÄÌìÊÒ
+			//æœªèƒ½æˆåŠŸåŠ å…¥èŠå¤©å®¤
 			data->command = _JOIN_CHANNEL;
 			data->guid = NULL;
 			data->p1 = 0;
 			*data->message = '\0';
 			;
-			//todo ·µ»Ø´íÎó×´Ì¬
+			//todo è¿”å›é”™è¯¯çŠ¶æ€
 		}
 		break;
 	default:
-		cout << "makeÁË¸öÆ¨" << endl;
+		cout << "makeäº†ä¸ªå±" << endl;
 		return NULL;
 
 	}
@@ -179,7 +179,7 @@ void add_to_channel(string channelName) {
 	strcpy(_channel->name, channelName.data());
 	_channel->firstMemember = NULL;
 	_channel->channelNum = channel.size();
-	cout << " ´´½¨ÆµµÀ£º" << _channel->name << " ÆµµÀºÅ£º" << _channel->channelNum;
+	cout << " åˆ›å»ºé¢‘é“ï¼š" << _channel->name << " é¢‘é“å·ï¼š" << _channel->channelNum;
 	channel.push_back(_channel);
 	cout << endl;
 }
@@ -187,13 +187,13 @@ Channel * find_channel_by_name(char * name) {
 	int amountOfChannel=channel.size();
 	for (int i = 0; i < amountOfChannel; i++) {
 		if (!strcmp(name, channel[i]->name)) return  channel[i];
-		//Á½¸ö×Ö·û´®ÏàµÈÔò·µ»Ø0
+		//ä¸¤ä¸ªå­—ç¬¦ä¸²ç›¸ç­‰åˆ™è¿”å›0
 	}
 	return NULL;
 }
 DWORD WINAPI Fun(LPVOID lpParamter)
 {
-	SOCKADDR_IN addrClient;//´¢´æ¿Í»§¶ËµÄÁ¬½ÓĞÅÏ¢
+	SOCKADDR_IN addrClient;//å‚¨å­˜å®¢æˆ·ç«¯çš„è¿æ¥ä¿¡æ¯
 	int len = sizeof(SOCKADDR);
 	char _receiveBuff[1420];
 	char _sendBuff[1420];
@@ -210,16 +210,16 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 			int clientCommand = data_parse((Data *)_receiveBuff);
 			switch (clientCommand) {
 			case _LIST_CHANNEL:
-				cout << "ÓÃ»§ÒªÇóÁĞ³öÁÄÌìÊÒ" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚åˆ—å‡ºèŠå¤©å®¤" << endl;
 				sendMessage=make_message(_LIST_CHANNEL, 0);
 				sendto(serverSocket, (char*)sendMessage, 1420, 0, (SOCKADDR *)&addrClient, len);
 				delete sendMessage;
 				break;
 			case _JOIN_CHANNEL:
-				cout << "ÓÃ»§ÒªÇó¼ÓÈëÁÄÌìÊÒ" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚åŠ å…¥èŠå¤©å®¤" << endl;
 				 _channel = find_channel_by_name(data->message);
 				if (_channel) {
-					//Èç¹ûÓĞÕâ¸öÁÄÌìÊÒ
+					//å¦‚æœæœ‰è¿™ä¸ªèŠå¤©å®¤
 					User * lastChannelMemember;
 					if (_channel->firstMemember == NULL) _channel->firstMemember = data->guid;
 					else {
@@ -232,23 +232,23 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 					}
 				}
 				else {
-					//Èç¹ûÃ»ÓĞÕâ¸öÁÄÌìÊÒ
+					//å¦‚æœæ²¡æœ‰è¿™ä¸ªèŠå¤©å®¤
 					sendMessage = make_message(_JOIN_CHANNEL, 0);
 					sendto(serverSocket, (char*)sendMessage, 30, 0, (SOCKADDR *)&addrClient, len);
 					;
 				}
 				break;
 			case _LIST_USER:
-				cout << "ÓÃ»§ÒªÇóÁĞ³öÓÃ»§" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚åˆ—å‡ºç”¨æˆ·" << endl;
 				break;
 			case _PRIVATE_MSG:
-				cout << "ÓÃ»§ÒªÇóË½ÁÄ" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚ç§èŠ" << endl;
 				break;
 			case _LEAVE:
-				cout << "ÓÃ»§ÒªÇóÀë¿ª" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚ç¦»å¼€" << endl;
 				break;
 			case _MESSAGE:
-				cout << "ÓÃ»§·¢ÁËÏûÏ¢" << endl;
+				cout << "ç”¨æˆ·å‘äº†æ¶ˆæ¯" << endl;
 				cout << data->message << endl;
 				sendto(serverSocket, temp, 10, 0, (SOCKADDR *)&addrClient, len);
 				break;
@@ -256,12 +256,12 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 				_user = 	add_to_user(addrClient);
 				sendMessage = make_message(_FIRST_CONNECT, 0);
 				sendto(serverSocket, (char*)sendMessage, 30, 0, (SOCKADDR *)&addrClient, len);
-				cout << "ĞÂÓÃ»§µÄ¼ÓÈë£¬ÎªÆä·ÖÅäGUIDÎª" << _user << endl;
+				cout << "æ–°ç”¨æˆ·çš„åŠ å…¥ï¼Œä¸ºå…¶åˆ†é…GUIDä¸º" << _user << endl;
 				delete sendMessage;
 				break;
 
 			default:
-				cout << "ÓÃ»§·ÅÁË¸öÆ¨" << endl;
+				cout << "ç”¨æˆ·æ”¾äº†ä¸ªå±" << endl;
 				break;
 			}
 		}

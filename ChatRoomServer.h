@@ -1,6 +1,6 @@
 
 //
-// Created by ÍõÈ» on 2019/6/1.
+// Created by çŽ‹ç„¶ on 2019/6/1.
 //
 
 #ifndef CHATROOM_CHARROOM_H
@@ -26,30 +26,30 @@
 #define _FIRST_CONNECT 9
 using  namespace std;
 
-//½«¿Í»§¶Ë·¢À´µÄÊý¾Ý½âÎöÎªÕâ¸ö½á¹¹
+//å°†å®¢æˆ·ç«¯å‘æ¥çš„æ•°æ®è§£æžä¸ºè¿™ä¸ªç»“æž„
 
 
 struct User {
 	SOCKADDR_IN clientAddr;
-	//µ±Ç°ÓÃ»§µÄÌ×½Ó×ÖµØÖ·
+	//å½“å‰ç”¨æˆ·çš„å¥—æŽ¥å­—åœ°å€
 	char id[128];
-	//(ÔÚÁÄÌìÊÒÖÐ)µ±Ç°ÓÃ»§µÄid
+	//(åœ¨èŠå¤©å®¤ä¸­)å½“å‰ç”¨æˆ·çš„id
 	User * nextMember;
-	//(ÔÚÁÄÌìÊÒÖÐ)ÏÂÒ»¸öÓÃ»§µÄID
+	//(åœ¨èŠå¤©å®¤ä¸­)ä¸‹ä¸€ä¸ªç”¨æˆ·çš„ID
 	int currentChannel;
-	//(ÔÚÁÄÌìÊÒÖÐ)ÁÄÌìÊÒID
-	//Ã¿¸ö¿Í»§¶ËÔÚÁ¬½Ó³É¹¦Ö®ºó£¬¶¼»á±»´¢´æÎªÕâÑùÒ»¸ö½á¹¹
+	//(åœ¨èŠå¤©å®¤ä¸­)èŠå¤©å®¤ID
+	//æ¯ä¸ªå®¢æˆ·ç«¯åœ¨è¿žæŽ¥æˆåŠŸä¹‹åŽï¼Œéƒ½ä¼šè¢«å‚¨å­˜ä¸ºè¿™æ ·ä¸€ä¸ªç»“æž„
 };
 struct Data {
 	int command;
-	//¿ØÖÆÃüÁîµÄÀàÐÍ
+	//æŽ§åˆ¶å‘½ä»¤çš„ç±»åž‹
 	User * guid;
-	//Î¨Ò»±êÊ¶·û¡£Ã¿¸ö¿Í»§¶ËÓÐ×Ô¼ºµÄÎ¨Ò»±êÊ¶·û£¬ÊÇÒ»¸öÔÚ·þÎñ¶ËÀïÖ¸ÏòUserµÄÖ¸Õë
+	//å”¯ä¸€æ ‡è¯†ç¬¦ã€‚æ¯ä¸ªå®¢æˆ·ç«¯æœ‰è‡ªå·±çš„å”¯ä¸€æ ‡è¯†ç¬¦ï¼Œæ˜¯ä¸€ä¸ªåœ¨æœåŠ¡ç«¯é‡ŒæŒ‡å‘Userçš„æŒ‡é’ˆ
 	int p1;
-	//µÚÒ»¸ö²ÎÊý£¬¿ÉÄÜÓÃÓÚ´«µÝguid£¬Ö¸ÏòchannelnameµÄÎ»ÖÃµÈµÈ£¬È¡¾öÓÚ¾ßÌåµÄÃüÁî¡£
+	//ç¬¬ä¸€ä¸ªå‚æ•°ï¼Œå¯èƒ½ç”¨äºŽä¼ é€’guidï¼ŒæŒ‡å‘channelnameçš„ä½ç½®ç­‰ç­‰ï¼Œå–å†³äºŽå…·ä½“çš„å‘½ä»¤ã€‚
 	int p2;
-	//µÚ¶þ¸ö²ÎÊý£¬Í¬ÉÏ
-	char message[1400];//·ÅÖÃÁÄÌìÎÄ±¾£¬ÓÃ»§ÃûµÈµÈ×Ö·û´®µÄµØ·½¡£
+	//ç¬¬äºŒä¸ªå‚æ•°ï¼ŒåŒä¸Š
+	char message[1400];//æ”¾ç½®èŠå¤©æ–‡æœ¬ï¼Œç”¨æˆ·åç­‰ç­‰å­—ç¬¦ä¸²çš„åœ°æ–¹ã€‚
 };
 
 struct Memember {
