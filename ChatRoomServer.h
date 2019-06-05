@@ -32,12 +32,13 @@ using  namespace std;
 struct User {
 	SOCKADDR_IN clientAddr;
 	//当前用户的套接字地址
+
 	char id[128];
 	//(在聊天室中)当前用户的id
 	User * nextMember;
 	//(在聊天室中)下一个用户的ID
-	int currentChannel;
-	//(在聊天室中)聊天室ID
+	Channel * currentChannel;
+	//(在聊天室中)当前用户所在的聊天室
 	//每个客户端在连接成功之后，都会被储存为这样一个结构
 };
 struct Data {
@@ -52,20 +53,18 @@ struct Data {
 	char message[1400];//放置聊天文本，用户名等等字符串的地方。
 };
 
-struct Memember {
-	
-};
+
 struct Channel {
 	char name[128];
 	int channelNum;
-	User * firstMemember;
+	User * firstMember;
 };
 
 void help_message();
 void Exit();
 int command_parse(string command);
 int data_parse(Data *data);
-Data* make_message(int command,int p1 );
+Data* make_message(int command,int p1,void* p2);
 DWORD WINAPI Fun(LPVOID lpParamter);
 User * add_to_user( SOCKADDR_IN addrClient);
 void add_to_channel(string channelName);
