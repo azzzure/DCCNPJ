@@ -11,15 +11,15 @@ int main() {
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	int serverSocket = socket(PF_INET, SOCK_DGRAM, 0);//´´½¨Ì×½Ó×Ö
-	SOCKADDR_IN addr;//¶¨ÒåµØÖ·½á¹¹Ìå±äÁ¿
-	addr.sin_family = AF_INET;//Ğ­Òé×å
-	addr.sin_port = htons(_MY_PORT);//¶Ë¿ÚºÅ
+	int serverSocket = socket(PF_INET, SOCK_DGRAM, 0);//åˆ›å»ºå¥—æ¥å­—
+	SOCKADDR_IN addr;//å®šä¹‰åœ°å€ç»“æ„ä½“å˜é‡
+	addr.sin_family = AF_INET;//åè®®æ—
+	addr.sin_port = htons(_MY_PORT);//ç«¯å£å·
 	addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	bind(serverSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));
 	int len = sizeof(SOCKADDR);
 	string command;
-	cout << "·şÎñ¶Ë" << endl;
+	cout << "æœåŠ¡ç«¯" << endl;
 	help_message();
 	int pid = _getpid();
 	cout << "pid =" << pid << endl;
@@ -28,11 +28,12 @@ int main() {
 	HANDLE LTC = CreateThread(NULL, 0, listen_to_client, (LPVOID*)&serverSocket, 0, NULL);
 	//HANDLE CUA = CreateThread(NULL, 0, check_user_alive, (LPVOID*)&serverSocket, 0, NULL);
 	CloseHandle(LTC);
+	//é»˜è®¤é¢‘é“df
 	add_to_channel("df");
-	//Ö÷Ïß³Ì´¦ÀíÓÃ»§µÄÊäÈë
 
+	//ä¸»çº¿ç¨‹å¤„ç†ç®¡ç†å‘˜çš„è¾“å…¥
 	Channel *currentChannel=NULL;
-	string channelName;
+	string channelName,userName;
 	User * tempUser;
 	while (1) {
 		cin >> command;
@@ -54,17 +55,17 @@ int main() {
 			cin >> channelName;
 			currentChannel = find_channel_by_name(channelName.data());
 			if (currentChannel) {
-				cout << "³É¹¦¼ÓÈëÆµµÀ"<<currentChannel->name<<endl;
+				cout << "æˆåŠŸåŠ å…¥é¢‘é“"<<currentChannel->name<<endl;
 			}
 			else {
-				cout << "Ã»ÓĞÕâ¸öÆµµÀ£¡"<<endl;
+				cout << "æ²¡æœ‰è¿™ä¸ªé¢‘é“ï¼"<<endl;
 			}
 			break;
 		case _LIST_USER:
 			if (currentChannel) {
 				tempUser = currentChannel->firstMember;
 				if (tempUser) {
-					cout << "ÆµµÀ" << currentChannel->name << "ÖĞµÄÓÃ»§Îª£º";
+					cout << "é¢‘é“" << currentChannel->name << "ä¸­çš„ç”¨æˆ·ä¸ºï¼š";
 
 					while (currentChannel != NULL) {
 						cout << tempUser->id << endl;
@@ -73,29 +74,38 @@ int main() {
 					
 				}
 				else {
-					cout << "ÆµµÀ" << currentChannel->name << "ÖĞ»¹Ã»ÓĞÈÎºÎÓÃ»§"<<endl;
+					cout << "é¢‘é“" << currentChannel->name << "ä¸­è¿˜æ²¡æœ‰ä»»ä½•ç”¨æˆ·"<<endl;
 				}
 			}
 			else {
-				cout << "Äú²»ÔÚÆµµÀÖĞ£¡" << endl;
+				cout << "æ‚¨ä¸åœ¨é¢‘é“ä¸­ï¼" << endl;
 			}
 			break;
 		case _KICK:
-			//todo
+			//todo å°†ç”¨æˆ·è¸¢å‡ºé¢‘é“
+			cin>>userName
+			if (currentChannel) {
+				delete_user_from_channel(currentChannel,userName.data());
+				make_message(_KICK,)
+			}
+			else {
+				cout << "æ‚¨ä¸åœ¨é¢‘é“ä¸­ï¼" << endl;
+			}
+
 			break;
 		case _LEAVE:
 			if (currentChannel) {
-				cout << "ÒÑÍË³öÆµµÀ" << currentChannel->name << endl;
+				cout << "å·²é€€å‡ºé¢‘é“" << currentChannel->name << endl;
 				currentChannel = NULL;
 			}
 			else {
-				cout << "Äú²»ÔÚÆµµÀÖĞ£¡" << endl;
+				cout << "æ‚¨ä¸åœ¨é¢‘é“ä¸­ï¼" << endl;
 			}
 			//todo
 			break; 
 		case _CLOSECHANNEL:
 			//todo
-			//¸øÆµµÀÄÚÓÃ»§·¢ËÍĞÅÏ¢£ºÒ¯×ßÀ²
+			//ç»™é¢‘é“å†…ç”¨æˆ·å‘é€ä¿¡æ¯ï¼šçˆ·èµ°å•¦
 			break;
 		default: {
 			help_message();
@@ -107,14 +117,14 @@ int main() {
 	return 0;
 }
 void help_message() {
-	cout << "quit ÍË³ö±¾³ÌĞò" << endl;
-	cout << "openchannel channelName :¿ªÍ¨ĞÂµÄÁÄÌìÊÒ" << endl;
-	cout << "channels ÁĞ³öÏÖÓĞµÄÁÄÌìÊÒ" << endl;
-	cout << "enterchannel channelName ½øÈëÏÖÓĞµÄÁÄÌìÊÒÖĞ" << endl;
-	cout << "list ÁĞ³öµ±Ç°ÁÄÌìÊÒµÄËùÓĞÓÃ»§" << endl;
-	cout << "kickout userid ½«ÓÃ»§Ìß³öÁÄÌìÊÒ" << endl;
-	cout << "leave Àë¿ªÁÄÌìÊÒ" << endl;
-	cout << "closechannel channelname ¹Ø±ÕÁÄÌìÊÒ" << endl;
+	cout << "quit é€€å‡ºæœ¬ç¨‹åº" << endl;
+	cout << "openchannel channelName :å¼€é€šæ–°çš„èŠå¤©å®¤" << endl;
+	cout << "channels åˆ—å‡ºç°æœ‰çš„èŠå¤©å®¤" << endl;
+	cout << "enterchannel channelName è¿›å…¥ç°æœ‰çš„èŠå¤©å®¤ä¸­" << endl;
+	cout << "list åˆ—å‡ºå½“å‰èŠå¤©å®¤çš„æ‰€æœ‰ç”¨æˆ·" << endl;
+	cout << "kickout userid å°†ç”¨æˆ·è¸¢å‡ºèŠå¤©å®¤" << endl;
+	cout << "leave ç¦»å¼€èŠå¤©å®¤" << endl;
+	cout << "closechannel channelname å…³é—­èŠå¤©å®¤" << endl;
 	cout << "" << endl;
 	cout << "" << endl;
 
@@ -141,7 +151,7 @@ int command_parse(string command) {
 Data * make_message(int command, int p1, void * p2) {
  	Data * data = new Data;
 	if (data == NULL) {
-		cout << "new ´íÎó" << endl;
+		cout << "new é”™è¯¯" << endl;
 		exit(-1);
 	}
 	User * _user;
@@ -157,10 +167,10 @@ Data * make_message(int command, int p1, void * p2) {
 	{
 		data->command = _LIST_CHANNEL;
 		data->guid = NULL;
-		data->p1 = channel.size();//µ±Ç°channelµÄÊıÁ¿
+		data->p1 = channel.size();//å½“å‰channelçš„æ•°é‡
 		for (int i = 0; i < data->p1; i++) {
 			strcpy(data->message + (_MAX_STRING_LENTH + 1) * i, channel[i]->name);
-		//³¬¹ıÁËµÈÒ»ÏÂÔÙËµ
+		//è¶…è¿‡äº†ç­‰ä¸€ä¸‹å†è¯´
 		}
 		break;
 	}
@@ -168,7 +178,7 @@ Data * make_message(int command, int p1, void * p2) {
 	case _JOIN_CHANNEL:
 	{
 		if (p1) {
-			//³É¹¦¼ÓÈëÁËÁÄÌìÊÒ
+			//æˆåŠŸåŠ å…¥äº†èŠå¤©å®¤
 			data->command = _JOIN_CHANNEL;
 			data->guid = NULL;
 			data->p1 = 1;
@@ -176,21 +186,21 @@ Data * make_message(int command, int p1, void * p2) {
 
 		}
 		else {
-			//Î´ÄÜ³É¹¦¼ÓÈëÁÄÌìÊÒ
+			//æœªèƒ½æˆåŠŸåŠ å…¥èŠå¤©å®¤
 			data->command = _JOIN_CHANNEL;
 			data->guid = NULL;
 			data->p1 = 0;
 			*data->message = '\0';
 			;
-			//todo ·µ»Ø´íÎó×´Ì¬
+			//todo è¿”å›é”™è¯¯çŠ¶æ€
 		}
 		break;
 	}
 	case _LIST_USER:
 	{
-		//p2:ÆµµÀÖ¸Õë
+		//p2:é¢‘é“æŒ‡é’ˆ
 		if (p1) {
-			//ÔÚÁÄÌìÊÒÖĞ
+			//åœ¨èŠå¤©å®¤ä¸­
 			data->command = _LIST_USER;
 			data->guid = NULL;
 			data->p1 = 1;
@@ -199,7 +209,7 @@ Data * make_message(int command, int p1, void * p2) {
 				strcpy(data->message + (_MAX_STRING_LENTH + 1) * i, channel[i]->name);
 				if (_user->nextMember != NULL) {
 					_user = _user->nextMember;
-					//todo£º´¦Àí³¬³öµÄÇé¿ö
+					//todoï¼šå¤„ç†è¶…å‡ºçš„æƒ…å†µ
 				}
 				else {
 					data->p2 = i+1;
@@ -212,22 +222,22 @@ Data * make_message(int command, int p1, void * p2) {
 			data->command = _LIST_USER;
 			data->guid = NULL;
 			data->p1 = 0;
-			//²»ÔÚÁÄÌìÊÒÖĞ,²»ÄÜÍê³É´ËÃüÁî
+			//ä¸åœ¨èŠå¤©å®¤ä¸­,ä¸èƒ½å®Œæˆæ­¤å‘½ä»¤
 			;
 
 		}
 		break;
 	}
 	case _MESSAGE:
-		//p2ÎªdataÖ¸Õë
+		//p2ä¸ºdataæŒ‡é’ˆ
 		if (p1) {
 			data->command = _MESSAGE;
 			data->guid = NULL;
 			data->p1 = 1;
 			strcpy(data->message, ((Data *)p2)->guid->id);
-			//µÚÒ»¶Î¿½±´id
+			//ç¬¬ä¸€æ®µæ‹·è´id
 			strcpy(data->message+_MAX_STRING_LENTH+1, ((Data *)p2)->message );
-			//µÚ¶ş¶Î¿½±´ĞÅÏ¢
+			//ç¬¬äºŒæ®µæ‹·è´ä¿¡æ¯
 		}
 		else {
 			data->command = _MESSAGE;
@@ -243,9 +253,9 @@ Data * make_message(int command, int p1, void * p2) {
 			data->guid = NULL;
 			data->p1 = 1;
 			strcpy(data->message, ((Data *)p2)->guid->id);
-			//µÚÒ»¶Î¿½±´id
+			//ç¬¬ä¸€æ®µæ‹·è´id
 			strcpy(data->message + _MAX_STRING_LENTH + 1, ((Data *)p2)->message+ _MAX_STRING_LENTH + 1);
-			//µÚ¶ş¶Î¿½±´ĞÅÏ¢
+			//ç¬¬äºŒæ®µæ‹·è´ä¿¡æ¯
 		}
 		else {
 			data->command = _PRIVATE_MSG;
@@ -274,13 +284,13 @@ Data * make_message(int command, int p1, void * p2) {
 			*data->message = '\0';
 		}
 	default:
-		cout << "makeÁË¸öÆ¨" << endl;
+		cout << "makeäº†ä¸ªå±" << endl;
 		return NULL;
 
 	}
 	return data;
 }
-//ÎªĞÂµÄuser·ÖÅäÄÚ´æ¿Õ¼ä£¬²¢¼ÓÈëvector<user>ÖĞ
+//ä¸ºæ–°çš„useråˆ†é…å†…å­˜ç©ºé—´ï¼Œå¹¶åŠ å…¥vector<user>ä¸­
 User * add_to_user(SOCKADDR_IN addrClient) {
 	User * _user = new User;
 	_user->clientAddr = addrClient;
@@ -290,13 +300,13 @@ User * add_to_user(SOCKADDR_IN addrClient) {
 	user.push_back(_user);
 	return _user;
 }
-//ÎªĞÂµÄchannel·ÖÅäÄÚ´æ¿Õ¼ä£¬²¢¼ÓÈëvector<channel>ÖĞ
+//ä¸ºæ–°çš„channelåˆ†é…å†…å­˜ç©ºé—´ï¼Œå¹¶åŠ å…¥vector<channel>ä¸­
 void add_to_channel(string channelName) {
 	Channel * _channel = new Channel;
 	strcpy(_channel->name, channelName.data());
 	_channel->firstMember = NULL;
 	_channel->channelNum = channel.size();
-	cout << " ´´½¨ÆµµÀ£º" << _channel->name << " ÆµµÀºÅ£º" << _channel->channelNum;
+	cout << " åˆ›å»ºé¢‘é“ï¼š" << _channel->name << " é¢‘é“å·ï¼š" << _channel->channelNum;
 	channel.push_back(_channel);
 	cout << endl;
 }
@@ -304,14 +314,14 @@ Channel * find_channel_by_name(const char * name) {
 	int amountOfChannel = channel.size();
 	for (int i = 0; i < amountOfChannel; i++) {
 		if (!strcmp(name, channel[i]->name)) return  channel[i];
-		//Á½¸ö×Ö·û´®ÏàµÈÔò·µ»Ø0
+		//ä¸¤ä¸ªå­—ç¬¦ä¸²ç›¸ç­‰åˆ™è¿”å›0
 	}
 	return NULL;
 }
 
 void  add_user_to_channel(Channel *_channel, User *_user) {
 	User * lastChannelMember;
-	//½«ÓÃ»§¼ÓÈë¸ÃÁÄÌìÊÒµÄ³ÉÔ±Ãûµ¥ÖĞ
+	//å°†ç”¨æˆ·åŠ å…¥è¯¥èŠå¤©å®¤çš„æˆå‘˜åå•ä¸­
 	if (_channel->firstMember == NULL) _channel->firstMember = _user;
 	else {
 		lastChannelMember = _channel->firstMember;
@@ -323,35 +333,50 @@ void  add_user_to_channel(Channel *_channel, User *_user) {
 	}
 	return;
 }
-void  delete_user_to_channel(Channel * _channel, User *_user) {
-	
-	User * lastChannelMember;
-	//µÚÒ»¸ö¾ÍÊÇ_user
-	if (_channel->firstMember == _user) _channel->firstMember = _user->nextMember;
-	else {
-		//_userÔÚÖĞ¼ä
-		lastChannelMember = _channel->firstMember;
-
-		while (lastChannelMember->nextMember != NULL) {
-			lastChannelMember = lastChannelMember->nextMember;
-		}
-		lastChannelMember->nextMember = _user;
+int delete_user_from_channel(Channel * _channel, char *_user) {
+	//æ‰¾åˆ°å¾…åˆ é™¤ç”¨æˆ·çš„å‰ä¸€ä¸ªçš„ç”¨æˆ·,æ–¹ä¾¿æ“ä½œ
+	User * preMember,targetMember;
+	//ç‰¹æ®Šæƒ…å†µ,ç¬¬ä¸€ä¸ªå°±æ˜¯_user
+	if(!strcmp(_channel->firstMember->id,_user)){
+		targetMember=_channel->firstMember;
+		_channel->firstMember=targetMember->nextMember;
+		return 0;
 	}
-	return;
+
+	//
+	preMember=_channel->firstMember;
+	while(preMember->nextMember!=NULL){
+		if(!strcmp(preMember->nextMember->id,_user)){
+			//æ‰¾åˆ°å•¦
+			targetMember=preMember->nextMember;
+			break;
+		}
+		preMember=preMember->nextMember;
+	}
+	if(preMember->nextMember==NULL){
+		//æ²¡æ‰¾åˆ°
+		return -1;
+	}
+	else{
+		*targetMember->id='\0';
+		targetMember->nextMember=NULL;
+		targetMember->currentChannel=NULL;
+	}
+
 }
 
-//½ÓÊÜ²¢´¦ÀíÀ´×Ô¿Í»§µÄĞÅÏ¢
+//æ¥å—å¹¶å¤„ç†æ¥è‡ªå®¢æˆ·çš„ä¿¡æ¯
 DWORD WINAPI listen_to_client(LPVOID lpParamter)
 {
-	SOCKADDR_IN addrClient;//´¢´æ¿Í»§¶ËµÄÁ¬½ÓĞÅÏ¢
+	SOCKADDR_IN addrClient;//å‚¨å­˜å®¢æˆ·ç«¯çš„è¿æ¥ä¿¡æ¯
 	int len = sizeof(SOCKADDR);
 	char _receiveBuff[1416];
 	char _sendBuff[1416];
 	char temp[32] = "hahaha";
-	//¿ÉÄÜ»áÓÃµ½µÄ
+	//å¯èƒ½ä¼šç”¨åˆ°çš„
 	SOCKET serverSocket = *(SOCKET *)lpParamter;
 
-	//Ïß³Ì2´¦ÀíÀ´×Ô¿Í»§¶ËµÄÁ¬½Ó
+	//çº¿ç¨‹2å¤„ç†æ¥è‡ªå®¢æˆ·ç«¯çš„è¿æ¥
 	while (1) {
 		int recvDataSize = recvfrom(serverSocket, _receiveBuff, 1416, 0, (SOCKADDR*)&addrClient, &len);
 		User * _user;
@@ -365,7 +390,7 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 			switch (clientCommand) {
 			case _LIST_CHANNEL: 
 			{
-				cout << "ÓÃ»§ÒªÇóÁĞ³öÁÄÌìÊÒ" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚åˆ—å‡ºèŠå¤©å®¤" << endl;
 				sendMessage = make_message(_LIST_CHANNEL, 0, NULL);
 				sendto(serverSocket, (char*)sendMessage, 1416, 0, (SOCKADDR *)&addrClient, len);
 				delete sendMessage;
@@ -373,24 +398,24 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 			}
 			case _JOIN_CHANNEL:
 			{
-				cout << "ÓÃ»§ÒªÇó¼ÓÈëÁÄÌìÊÒ" << endl;
-				//ÔÚdataÖĞ,ÒÔmessageÎªÆğÊ¼µã,Ç°31Î»Îªchannelname,ºó31Î»Îªid
+				cout << "ç”¨æˆ·è¦æ±‚åŠ å…¥èŠå¤©å®¤" << endl;
+				//åœ¨dataä¸­,ä»¥messageä¸ºèµ·å§‹ç‚¹,å‰31ä½ä¸ºchannelname,å31ä½ä¸ºid
 				_channel = find_channel_by_name(data->message);
 				if (_channel) {
-					//Èç¹ûÓĞÕâ¸öÁÄÌìÊÒ
+					//å¦‚æœæœ‰è¿™ä¸ªèŠå¤©å®¤
 					add_user_to_channel(_channel, data->guid);
-					//´¦ÀíÓÃ»§µÄÏàÓ¦Êı¾İ
+					//å¤„ç†ç”¨æˆ·çš„ç›¸åº”æ•°æ®
 					_user = data->guid;
 					strcpy(_user->id, data->message + _MAX_STRING_LENTH+1);
 					_user->nextMember = NULL;
 					_user->currentChannel = _channel;
-					//·¢ÏûÏ¢
+					//å‘æ¶ˆæ¯
 					sendMessage = make_message(_JOIN_CHANNEL, 1, NULL);
 					sendto(serverSocket, (char*)sendMessage, 100, 0, (SOCKADDR *)&addrClient, len);
 					delete sendMessage;
 				}
 				else {
-					//Èç¹ûÃ»ÓĞÕâ¸öÁÄÌìÊÒ
+					//å¦‚æœæ²¡æœ‰è¿™ä¸ªèŠå¤©å®¤
 					sendMessage = make_message(_JOIN_CHANNEL, 0, NULL);
 					sendto(serverSocket, (char*)sendMessage, 30, 0, (SOCKADDR *)&addrClient, len);
 					delete sendMessage;
@@ -400,7 +425,7 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 			}
 			case _LIST_USER:
 			{
-				cout << "ÓÃ»§ÒªÇóÁĞ³öÓÃ»§" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚åˆ—å‡ºç”¨æˆ·" << endl;
 				_user = data->guid;
 				_channel = _user->currentChannel;
 				if (_channel) {
@@ -409,7 +434,7 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 					delete sendMessage;
 				}
 				else {
-					//µ±Ç°²»ÔÚÈÎºÎÆµµÀÖĞ
+					//å½“å‰ä¸åœ¨ä»»ä½•é¢‘é“ä¸­
 					sendMessage = make_message(_LIST_USER, 0, NULL);
 					sendto(serverSocket, (char*)sendMessage, 30, 0, (SOCKADDR *)&addrClient, len);
 					delete sendMessage;
@@ -417,14 +442,14 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 				break;
 			}
 			case _PRIVATE_MSG:
-				//messageÖĞµÚÒ»¶ÎÊÇ¶Ô·½ID£¬µÚ¶ş¶ÎÊÇË½ÁÄÄÚÈİ
+				//messageä¸­ç¬¬ä¸€æ®µæ˜¯å¯¹æ–¹IDï¼Œç¬¬äºŒæ®µæ˜¯ç§èŠå†…å®¹
 		
-				cout << "ÓÃ»§ÒªÇóË½ÁÄ" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚ç§èŠ" << endl;
 				_user = data->guid;
 				_channel = _user->currentChannel;
 				strcpy(temp, data->message);
 				User * _friend;
-				//ÕÒµ½¶ÔÓ¦µÄÓÃ»§
+				//æ‰¾åˆ°å¯¹åº”çš„ç”¨æˆ·
 				_friend = _channel->firstMember;
 
 					while (_friend!= NULL) {
@@ -450,17 +475,17 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 				
 				break;
 			case _LEAVE:
-				cout << "ÓÃ»§ÒªÇóÀë¿ªÁÄÌìÊÒ" << endl;
+				cout << "ç”¨æˆ·è¦æ±‚ç¦»å¼€èŠå¤©å®¤" << endl;
 				_user = data->guid;
 				_channel = _user->currentChannel;
 				if (_channel) {
-					//·¢ËÍÏûÏ¢
+					//å‘é€æ¶ˆæ¯
 					sendMessage = make_message(_LEAVE, 1, data);
 					sendto(serverSocket, (char*)sendMessage, 28, 0, (SOCKADDR *)&_friend->clientAddr, len);
 					_user->currentChannel = NULL;
 					*_user->id = '\0';
 					_user->nextMember = NULL;
-					//´¦Àíµ±Ç°ÆµµÀÖĞµÄÓÃ»§
+					//todo å¤„ç†å½“å‰é¢‘é“ä¸­çš„ç”¨æˆ·
 
 				}
 				else {
@@ -471,8 +496,8 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 				delete sendMessage;
 				break;
 			case _MESSAGE:
-				//ÔÚdataÖĞ,ÒÔmessage¾ÍÊÇÓÃ»§·¢µÄĞÅÏ¢
-				cout << "ÓÃ»§·¢ÁËÏûÏ¢" << endl;
+				//åœ¨dataä¸­,ä»¥messageå°±æ˜¯ç”¨æˆ·å‘çš„ä¿¡æ¯
+				cout << "ç”¨æˆ·å‘äº†æ¶ˆæ¯" << endl;
 				_user = data->guid;
 				_channel = _user->currentChannel;
 					if (_channel) {
@@ -498,12 +523,12 @@ DWORD WINAPI listen_to_client(LPVOID lpParamter)
 				_user = add_to_user(addrClient);
 				sendMessage = make_message(_FIRST_CONNECT, 0, NULL);
 				sendto(serverSocket, (char*)sendMessage, 30, 0, (SOCKADDR *)&addrClient, len);
-				cout << "ĞÂÓÃ»§µÄ¼ÓÈë£¬ÎªÆä·ÖÅäGUIDÎª" << _user << endl;
+				cout << "æ–°ç”¨æˆ·çš„åŠ å…¥ï¼Œä¸ºå…¶åˆ†é…GUIDä¸º" << _user << endl;
 				delete sendMessage;
 				break;
 
 			default:
-				cout << "ÓÃ»§·ÅÁË¸öÆ¨" << endl;
+				cout << "ç”¨æˆ·æ”¾äº†ä¸ªå±" << endl;
 				break;
 			}
 		}

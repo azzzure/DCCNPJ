@@ -1,7 +1,7 @@
 #pragma once
 
 //
-// Created by ÍõÈ» on 2019/6/1.
+// Created by çŽ‹ç„¶ on 2019/6/1.
 //
 
 #ifndef CHATROOM_CHATROOMCLIENT_H

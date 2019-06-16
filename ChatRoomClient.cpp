@@ -13,10 +13,10 @@ int main() {
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	SOCKET clientSocket = socket(PF_INET, SOCK_DGRAM, 0);//´´½¨Ì×½Ó×Ö
-	SOCKADDR_IN serverAddr;//¶¨ÒåµØÖ·½á¹¹Ìå±äÁ¿
-	serverAddr.sin_family = AF_INET;//Ğ­Òé×å
-	serverAddr.sin_port = htons(_MY_PORT);//¶Ë¿ÚºÅ
+	SOCKET clientSocket = socket(PF_INET, SOCK_DGRAM, 0);//åˆ›å»ºå¥—æ¥å­—
+	SOCKADDR_IN serverAddr;//å®šä¹‰åœ°å€ç»“æ„ä½“å˜é‡
+	serverAddr.sin_family = AF_INET;//åè®®æ—
+	serverAddr.sin_port = htons(_MY_PORT);//ç«¯å£å·
 	serverAddr.sin_addr.S_un.S_addr = inet_addr("192.168.31.24");
 	//bind(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));
 
@@ -27,15 +27,15 @@ int main() {
 	SOCKADDR_IN _addrClient;//???
 	int len = sizeof(SOCKADDR);
 	string command;
-	cout << "¿Í»§¶Ë" << endl;
+	cout << "å®¢æˆ·ç«¯" << endl;
 
 	init(clientSocket, serverAddr);
-	//³õÊ¼»¯£¬µÃµ½GUID
+	//åˆå§‹åŒ–ï¼Œå¾—åˆ°GUID
 
 	HANDLE hThread = CreateThread(NULL, 0, Fun, (LPVOID*)&clientSocket, 0, NULL);
 	//CloseHandle(hThread);
 
-	//µÈ´ıÀ´×Ô±ê×¼ÊäÈëµÄÃüÁî
+	//ç­‰å¾…æ¥è‡ªæ ‡å‡†è¾“å…¥çš„å‘½ä»¤
 	while (1) {
 		cin >> command;
 		int _command = command_parse(command);
@@ -49,18 +49,18 @@ int main() {
 			Exit();
 		}
 		case _LIST_CHANNEL:
-			cout << "ÁĞ³öÆµµÀ" << endl;
+			cout << "åˆ—å‡ºé¢‘é“" << endl;
 			data->command = _LIST_CHANNEL;
 			data->guid = guid;
 			*data->message = '\0';
 			sendto(clientSocket, (char *)data, 28, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
 			break;
 		case _JOIN_CHANNEL:
-			cout << "¼ÓÈëÆµµÀ" << endl;
+			cout << "åŠ å…¥é¢‘é“" << endl;
 			cin >> channelname;
 			cin >> userid;
 			strcpy(user->id , userid.data());
-			//todo ºÏ·¨ĞÔ¼ì²é
+			//todo åˆæ³•æ€§æ£€æŸ¥
 			data->command = _JOIN_CHANNEL;
 			data->guid = guid;
 
@@ -70,7 +70,7 @@ int main() {
 			break;
 		
 		case _LIST_USER:
-			cout << "ÁĞ³öÓÃ»§" << endl;
+			cout << "åˆ—å‡ºç”¨æˆ·" << endl;
 			data->command = _LIST_USER;
 			data->guid = guid;
 			*data->message = '\0';
@@ -78,8 +78,8 @@ int main() {
 
 			break;
 		case _PRIVATE_MSG:
-			//messageµÚÒ»¶ÎÊÇid£¬µÚ¶ş¶ÎÊÇÏûÏ¢
-			cout << "Ë½ÁÄ" << endl;
+			//messageç¬¬ä¸€æ®µæ˜¯idï¼Œç¬¬äºŒæ®µæ˜¯æ¶ˆæ¯
+			cout << "ç§èŠ" << endl;
 			cin >> friendid;
 			getline(cin,privateMessage);
 			data->command = _PRIVATE_MSG;
@@ -90,7 +90,7 @@ int main() {
 
 			break;
 		case _LEAVE:
-			cout << "ÍË³öÁÄÌìÊÒ"<<endl;
+			cout << "é€€å‡ºèŠå¤©å®¤"<<endl;
 			data->command = _LEAVE;
 			data->guid = guid;
 			*data->message = '\0';
@@ -105,7 +105,7 @@ int main() {
 			break;
 
 		case _INIT :
-			cout << "ÖØĞÂ³õÊ¼»¯" << endl;
+			cout << "é‡æ–°åˆå§‹åŒ–" << endl;
 			reinit(clientSocket, serverAddr);
 			//WaitForSingleObject(hThread, INFINITE);
 			
@@ -121,13 +121,13 @@ int main() {
 	return 0;
 }
 void help_message() {
-	cout << "¿Í»§¶Ë°ïÖúĞÅÏ¢" << endl;
-	cout << "join channel username ÒÔusername¼ÓÈëÁÄÌìÊÒchannelÖĞ" << endl;
-	cout << "channels ÁĞ³öÏÖÓĞµÄÁÄÌìÊÒ" << endl;
-	cout << "list ÁĞ³öµ±Ç°ÁÄÌìÊÒµÄËùÓĞÓÃ»§" << endl;
-	cout << "msg userid your_message_here ¸øÓÃ»§·¢ËÍË½ÈËÏûÏ¢" << endl;
-	cout << "leave Àë¿ªÁÄÌìÊÒ" << endl;
-	cout << "quit ÍË³ö±¾³ÌĞò" << endl;
+	cout << "å®¢æˆ·ç«¯å¸®åŠ©ä¿¡æ¯" << endl;
+	cout << "join channel username ä»¥usernameåŠ å…¥èŠå¤©å®¤channelä¸­" << endl;
+	cout << "channels åˆ—å‡ºç°æœ‰çš„èŠå¤©å®¤" << endl;
+	cout << "list åˆ—å‡ºå½“å‰èŠå¤©å®¤çš„æ‰€æœ‰ç”¨æˆ·" << endl;
+	cout << "msg userid your_message_here ç»™ç”¨æˆ·å‘é€ç§äººæ¶ˆæ¯" << endl;
+	cout << "leave ç¦»å¼€èŠå¤©å®¤" << endl;
+	cout << "quit é€€å‡ºæœ¬ç¨‹åº" << endl;
 	cout << "" << endl;
 
 }
@@ -169,7 +169,7 @@ void init(SOCKET clientSocket, SOCKADDR_IN serverAddr) {
 		if (recvDataSize != -1) {
 			data = (Data*)receiveBuff;
 			guid = data->guid;
-			cout << "³É¹¦Á¬½Óµ½·şÎñ¶Ë£¡·ÖÅäµÄguidÎª"<<hex<< data->guid<< endl;
+			cout << "æˆåŠŸè¿æ¥åˆ°æœåŠ¡ç«¯ï¼åˆ†é…çš„guidä¸º"<<hex<< data->guid<< endl;
 			return; 
 		}
 	}
@@ -185,7 +185,7 @@ void reinit(SOCKET clientSocket, SOCKADDR_IN serverAddr){
 	
 }
 
-//Ïß³Ì£¬ÓÃÓÚ½ÓÊÜ·şÎñÆ÷·¢»ØÀ´µÄÏûÏ¢
+//çº¿ç¨‹ï¼Œç”¨äºæ¥å—æœåŠ¡å™¨å‘å›æ¥çš„æ¶ˆæ¯
 DWORD WINAPI Fun(LPVOID lpParamter)
 {
 	SOCKADDR_IN clientAddr;//???
@@ -203,53 +203,53 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 			int clientCommand = data_parse((Data *)receiveBuff);
 			switch (clientCommand) {
 			case _LIST_CHANNEL:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºÁĞ³öÁÄÌìÊÒ" << endl;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šåˆ—å‡ºèŠå¤©å®¤" << endl;
 				for (int i = 0; i < data->p1; i++) {
 					cout << data->message+i * (_MAX_STRING_LENTH+1) << endl;
 				}
 				break;
 			case _JOIN_CHANNEL:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£º";
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼š";
 				if (data->p1) {
-					cout<<"³É¹¦¼ÓÈëÁËÁÄÌìÊÒ£¡";
+					cout<<"æˆåŠŸåŠ å…¥äº†èŠå¤©å®¤ï¼";
 
 				}
 				else {
-					cout << "¼ÓÈë´íÎó." << endl;
+					cout << "åŠ å…¥é”™è¯¯." << endl;
 				}
 				break;
 			case _LIST_USER:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£º" ;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼š" ;
 				if (data->p1) {
-					cout << "ÁĞ³öËùÓĞÓÃ»§" << endl;
+					cout << "åˆ—å‡ºæ‰€æœ‰ç”¨æˆ·" << endl;
 					for (int i = 0; i > data->p2; i++) {
 						cout << data->message + i * (_MAX_STRING_LENTH + 1) << endl;
 					}
 				}
 				else {
-					cout << "Ê§°Ü£¬Äú¿ÉÄÜ²»ÔÚÁÄÌìÊÒÖĞ" << endl;
+					cout << "å¤±è´¥ï¼Œæ‚¨å¯èƒ½ä¸åœ¨èŠå¤©å®¤ä¸­" << endl;
 				}
 				break;
 			case _PRIVATE_MSG:
-				//µÚÒ»¶ÎÊÇid£¬µÚ¶ş¶ÎµÄmessage
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºË½ÁÄ" << endl;
+				//ç¬¬ä¸€æ®µæ˜¯idï¼Œç¬¬äºŒæ®µçš„message
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šç§èŠ" << endl;
 				if (data->p1) {
-					 cout << "[" << data->message << "]µÄË½ÁÄ: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
+					 cout << "[" << data->message << "]çš„ç§èŠ: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
 				}
 				else {
-					cout << "´íÎó£¬Ã»ÓĞÕâ¸öÅóÓÑ" << endl;
+					cout << "é”™è¯¯ï¼Œæ²¡æœ‰è¿™ä¸ªæœ‹å‹" << endl;
 				}
 				break;
 			case _LEAVE:
-				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£º" ;
+				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼š" ;
 				if (data->p1==1) {
-					cout << "Àë¿ªÁÄÌìÊÒ"<<endl;
+					cout << "ç¦»å¼€èŠå¤©å®¤"<<endl;
 				}
 				else if(data->p1==0){
-					cout << "Äúµ±Ç°²»ÔÚÈÎºÎÁÄÌìÊÒÖĞ" << endl;
+					cout << "æ‚¨å½“å‰ä¸åœ¨ä»»ä½•èŠå¤©å®¤ä¸­" << endl;
 				}
 				else if (data->p1 == 2) {
-					cout << "Äú±»¹ÜÀíÔ±´ÓÆµµÀÖĞÌß³ö" << endl;
+					cout << "æ‚¨è¢«ç®¡ç†å‘˜ä»é¢‘é“ä¸­è¸¢å‡º" << endl;
 				}
 				break;
 			case _MESSAGE:
@@ -257,20 +257,20 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 					if (strcmp(data->message, user->id)) cout << "[" << data->message << "]: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
 				}
 				else {
-					cout << "´íÎó£¬Äú¿ÉÄÜ²»ÔÚÁÄÌìÊÒÖĞ"<<endl;
+					cout << "é”™è¯¯ï¼Œæ‚¨å¯èƒ½ä¸åœ¨èŠå¤©å®¤ä¸­"<<endl;
 				}
 			//	sendto(serverSocket, temp, 10, 0, (SOCKADDR *)&serverAddr, len);
 				break;
 			case _FIRST_CONNECT:
-				cout << "³É¹¦Á¬½Óµ½·şÎñ¶Ë£¡·ÖÅäµÄguidÎª" << hex << data->guid << endl;
+				cout << "æˆåŠŸè¿æ¥åˆ°æœåŠ¡ç«¯ï¼åˆ†é…çš„guidä¸º" << hex << data->guid << endl;
 				guid = data->guid;
 				break;
 			default:
-				cout << "·şÎñÆ÷·¢ÁË¸öÆ¨" << endl;
+				cout << "æœåŠ¡å™¨å‘äº†ä¸ªå±" << endl;
 				break;
 			}
 		}
 	}
-	cout << "¼àÌıÏß³Ì±»ÖÕÖ¹ÁË" << endl;
+	cout << "ç›‘å¬çº¿ç¨‹è¢«ç»ˆæ­¢äº†" << endl;
 	return 0;
 }
