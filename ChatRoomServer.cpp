@@ -17,9 +17,6 @@ int main() {
 	addr.sin_port = htons(_MY_PORT);//端口号
 	addr.sin_addr.S_un.S_addr = htonl(INADDR_ANY);
 	bind(serverSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));
-	char receiveBuff[1416];
-	char sendBuff[1416];
-	SOCKADDR_IN _addrClient;//???
 	int len = sizeof(SOCKADDR);
 	string command;
 	cout << "服务端" << endl;
@@ -28,10 +25,15 @@ int main() {
 	cout << "pid =" << pid << endl;
 
 	char temp[122] = "hahaha";
-	HANDLE hThread = CreateThread(NULL, 0, Fun, (LPVOID*)&serverSocket, 0, NULL);
-	CloseHandle(hThread);
-
+	HANDLE LTC = CreateThread(NULL, 0, listen_to_client, (LPVOID*)&serverSocket, 0, NULL);
+	//HANDLE CUA = CreateThread(NULL, 0, check_user_alive, (LPVOID*)&serverSocket, 0, NULL);
+	CloseHandle(LTC);
+	add_to_channel("df");
 	//主线程处理用户的输入
+
+	Channel *currentChannel=NULL;
+	string channelName;
+	User * tempUser;
 	while (1) {
 		cin >> command;
 		int _command = command_parse(command);
@@ -42,12 +44,59 @@ int main() {
 		}
 		case _OPENCHANNEL: {
 			cout << "openchannel:" << endl;
-			string channelName;
+			
 			cin >> channelName;
 			add_to_channel(channelName);
 			cout << channelName << endl;
 			break;
 		}
+		case _ENTERCHANNEL:
+			cin >> channelName;
+			currentChannel = find_channel_by_name(channelName.data());
+			if (currentChannel) {
+				cout << "成功加入频道"<<currentChannel->name<<endl;
+			}
+			else {
+				cout << "没有这个频道！"<<endl;
+			}
+			break;
+		case _LIST_USER:
+			if (currentChannel) {
+				tempUser = currentChannel->firstMember;
+				if (tempUser) {
+					cout << "频道" << currentChannel->name << "中的用户为：";
+
+					while (currentChannel != NULL) {
+						cout << tempUser->id << endl;
+						tempUser = tempUser->nextMember;
+					}
+					
+				}
+				else {
+					cout << "频道" << currentChannel->name << "中还没有任何用户"<<endl;
+				}
+			}
+			else {
+				cout << "您不在频道中！" << endl;
+			}
+			break;
+		case _KICK:
+			//todo
+			break;
+		case _LEAVE:
+			if (currentChannel) {
+				cout << "已退出频道" << currentChannel->name << endl;
+				currentChannel = NULL;
+			}
+			else {
+				cout << "您不在频道中！" << endl;
+			}
+			//todo
+			break; 
+		case _CLOSECHANNEL:
+			//todo
+			//给频道内用户发送信息：爷走啦
+			break;
 		default: {
 			help_message();
 			break;
@@ -81,6 +130,11 @@ void Exit() {
 int command_parse(string command) {
 	if (command == "quit") return _QUIT;
 	else if (command == "openchannel"|| command == "op")return _OPENCHANNEL;
+	else if (command == "enterchannel"||command=="ec")return _ENTERCHANNEL;
+	else if (command == "list")return _LIST_USER;
+	else if (command == "kick")return _KICK;
+	else if (command == "leave")return _LEAVE;
+	else if (command == "closechannel"||command=="cc")return _CLOSECHANNEL;
 
 	return 999;
 }
@@ -165,7 +219,6 @@ Data * make_message(int command, int p1, void * p2) {
 		break;
 	}
 	case _MESSAGE:
-	{
 		//p2为data指针
 		if (p1) {
 			data->command = _MESSAGE;
@@ -183,7 +236,43 @@ Data * make_message(int command, int p1, void * p2) {
 			*data->message = '\0';
 		}
 		break;
-	}
+	
+	case _PRIVATE_MSG:
+		if (p1) {
+			data->command = _PRIVATE_MSG;
+			data->guid = NULL;
+			data->p1 = 1;
+			strcpy(data->message, ((Data *)p2)->guid->id);
+			//第一段拷贝id
+			strcpy(data->message + _MAX_STRING_LENTH + 1, ((Data *)p2)->message+ _MAX_STRING_LENTH + 1);
+			//第二段拷贝信息
+		}
+		else {
+			data->command = _PRIVATE_MSG;
+			data->guid = NULL;
+			data->p1 = 0;
+			*data->message = '\0';
+		}
+		break;
+	case _LEAVE:
+		if (p1==1) {
+			data->command = _PRIVATE_MSG;
+			data->guid = NULL;
+			data->p1 = 1;
+			*data->message = '\0';
+		}
+		else if(p1==0){
+			data->command = _PRIVATE_MSG;
+			data->guid = NULL;
+			data->p1 = 0;
+			*data->message = '\0';
+		}
+		else if (p1 == 2) {
+			data->command = _PRIVATE_MSG;
+			data->guid = NULL;
+			data->p1 = 2;
+			*data->message = '\0';
+		}
 	default:
 		cout << "make了个屁" << endl;
 		return NULL;
@@ -191,6 +280,7 @@ Data * make_message(int command, int p1, void * p2) {
 	}
 	return data;
 }
+//为新的user分配内存空间，并加入vector<user>中
 User * add_to_user(SOCKADDR_IN addrClient) {
 	User * _user = new User;
 	_user->clientAddr = addrClient;
@@ -200,6 +290,7 @@ User * add_to_user(SOCKADDR_IN addrClient) {
 	user.push_back(_user);
 	return _user;
 }
+//为新的channel分配内存空间，并加入vector<channel>中
 void add_to_channel(string channelName) {
 	Channel * _channel = new Channel;
 	strcpy(_channel->name, channelName.data());
@@ -209,7 +300,7 @@ void add_to_channel(string channelName) {
 	channel.push_back(_channel);
 	cout << endl;
 }
-Channel * find_channel_by_name(char * name) {
+Channel * find_channel_by_name(const char * name) {
 	int amountOfChannel = channel.size();
 	for (int i = 0; i < amountOfChannel; i++) {
 		if (!strcmp(name, channel[i]->name)) return  channel[i];
@@ -217,25 +308,60 @@ Channel * find_channel_by_name(char * name) {
 	}
 	return NULL;
 }
-DWORD WINAPI Fun(LPVOID lpParamter)
+
+void  add_user_to_channel(Channel *_channel, User *_user) {
+	User * lastChannelMember;
+	//将用户加入该聊天室的成员名单中
+	if (_channel->firstMember == NULL) _channel->firstMember = _user;
+	else {
+		lastChannelMember = _channel->firstMember;
+
+		while (lastChannelMember->nextMember != NULL) {
+			lastChannelMember = lastChannelMember->nextMember;
+		}
+		lastChannelMember->nextMember = _user;
+	}
+	return;
+}
+void  delete_user_to_channel(Channel * _channel, User *_user) {
+	
+	User * lastChannelMember;
+	//第一个就是_user
+	if (_channel->firstMember == _user) _channel->firstMember = _user->nextMember;
+	else {
+		//_user在中间
+		lastChannelMember = _channel->firstMember;
+
+		while (lastChannelMember->nextMember != NULL) {
+			lastChannelMember = lastChannelMember->nextMember;
+		}
+		lastChannelMember->nextMember = _user;
+	}
+	return;
+}
+
+//接受并处理来自客户的信息
+DWORD WINAPI listen_to_client(LPVOID lpParamter)
 {
 	SOCKADDR_IN addrClient;//储存客户端的连接信息
 	int len = sizeof(SOCKADDR);
 	char _receiveBuff[1416];
 	char _sendBuff[1416];
-	char temp[122] = "hahaha";
+	char temp[32] = "hahaha";
+	//可能会用到的
 	SOCKET serverSocket = *(SOCKET *)lpParamter;
 
 	//线程2处理来自客户端的连接
 	while (1) {
-		int recvDataSize = recvfrom(serverSocket, _receiveBuff, 1400, 0, (SOCKADDR*)&addrClient, &len);
+		int recvDataSize = recvfrom(serverSocket, _receiveBuff, 1416, 0, (SOCKADDR*)&addrClient, &len);
 		User * _user;
 		Channel *_channel;
 		if (recvDataSize != -1) {
 			struct Data *data = (Data *)_receiveBuff;
 			struct Data *sendMessage;
+			
 
-			int clientCommand = data_parse((Data *)_receiveBuff);
+			int clientCommand =((Data *)_receiveBuff)->command;
 			switch (clientCommand) {
 			case _LIST_CHANNEL: 
 			{
@@ -252,17 +378,7 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 				_channel = find_channel_by_name(data->message);
 				if (_channel) {
 					//如果有这个聊天室
-					User * lastChannelMember;
-					//将用户加入该聊天室的成员名单中
-					if (_channel->firstMember == NULL) _channel->firstMember = data->guid;
-					else {
-						lastChannelMember = _channel->firstMember;
-
-						while (lastChannelMember->nextMember != NULL) {
-							lastChannelMember = lastChannelMember->nextMember;
-						}
-						lastChannelMember->nextMember = data->guid;
-					}
+					add_user_to_channel(_channel, data->guid);
 					//处理用户的相应数据
 					_user = data->guid;
 					strcpy(_user->id, data->message + _MAX_STRING_LENTH+1);
@@ -301,10 +417,58 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 				break;
 			}
 			case _PRIVATE_MSG:
+				//message中第一段是对方ID，第二段是私聊内容
+		
 				cout << "用户要求私聊" << endl;
+				_user = data->guid;
+				_channel = _user->currentChannel;
+				strcpy(temp, data->message);
+				User * _friend;
+				//找到对应的用户
+				_friend = _channel->firstMember;
+
+					while (_friend!= NULL) {
+						if (!strcmp(_friend->id, temp)) {
+							break;
+						}
+						cout << _friend->id << endl;
+						_friend = _friend->nextMember;
+
+					}
+					if (_friend != NULL) {
+						sendMessage =make_message(_PRIVATE_MSG, 1, data);
+						strcpy(sendMessage->message, _friend->id);
+						sendto(serverSocket, (char*)sendMessage, 1416, 0, (SOCKADDR *)&_friend->clientAddr, len);
+
+					}
+					else {
+						sendMessage =make_message(_PRIVATE_MSG, 0, NULL);
+						sendto(serverSocket, (char*)sendMessage, 1416, 0, (SOCKADDR *)&addrClient, len);
+
+					}
+					delete sendMessage;
+				
 				break;
 			case _LEAVE:
-				cout << "用户要求离开" << endl;
+				cout << "用户要求离开聊天室" << endl;
+				_user = data->guid;
+				_channel = _user->currentChannel;
+				if (_channel) {
+					//发送消息
+					sendMessage = make_message(_LEAVE, 1, data);
+					sendto(serverSocket, (char*)sendMessage, 28, 0, (SOCKADDR *)&_friend->clientAddr, len);
+					_user->currentChannel = NULL;
+					*_user->id = '\0';
+					_user->nextMember = NULL;
+					//处理当前频道中的用户
+
+				}
+				else {
+					sendMessage = make_message(_LEAVE, 0, data);
+					sendto(serverSocket, (char*)sendMessage, 28, 0, (SOCKADDR *)&_friend->clientAddr, len);
+
+				}
+				delete sendMessage;
 				break;
 			case _MESSAGE:
 				//在data中,以message就是用户发的信息
