@@ -40,7 +40,7 @@ int main() {
 		cin >> command;
 		int _command = command_parse(command);
 		int p1 = 0; int p2 = 0;
-		string channelname, userid;
+		string channelname, userid,friendid,privateMessage;
 		Data * data = new Data;
 		switch (_command) {
 		case _QUIT: {
@@ -78,14 +78,30 @@ int main() {
 
 			break;
 		case _PRIVATE_MSG:
+			//message第一段是id，第二段是消息
+			cout << "私聊" << endl;
+			cin >> friendid;
+			getline(cin,privateMessage);
+			data->command = _PRIVATE_MSG;
+			data->guid = guid;
+			strcpy(data->message, friendid.data());
+			strcpy(data->message + _MAX_STRING_LENTH + 1, privateMessage.data());
+			sendto(clientSocket, (char *)data, 1416, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
+
 			break;
 		case _LEAVE:
+			cout << "退出聊天室"<<endl;
+			data->command = _LEAVE;
+			data->guid = guid;
+			*data->message = '\0';
+			sendto(clientSocket, (char *)data, 1416, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
+
 			break;
 		case _MESSAGE:
 			data->command = _MESSAGE;
 			data->guid = guid;
 			strcpy( data->message,command.data());
-			sendto(clientSocket, (char *)data, 1400, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
+			sendto(clientSocket, (char *)data, 1416, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
 			break;
 
 		case _INIT :
@@ -133,6 +149,7 @@ int command_parse(string & command) {
 	else if (command == "msg")return _PRIVATE_MSG;
 	else if (command == "leave") return _LEAVE;
 	else if (command == "init") return _INIT;
+	else if (command == "msg") return _PRIVATE_MSG;
 	else if (command == "help") return 99;
 	string temp;
 	getline(cin, temp);
@@ -214,14 +231,30 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 				}
 				break;
 			case _PRIVATE_MSG:
+				//第一段是id，第二段的message
 				cout << "收到服务器的消息：私聊" << endl;
+				if (data->p1) {
+					 cout << "[" << data->message << "]的私聊: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
+				}
+				else {
+					cout << "错误，没有这个朋友" << endl;
+				}
 				break;
 			case _LEAVE:
-				cout << "收到服务器的消息：离开" << endl;
+				cout << "收到服务器的消息：" ;
+				if (data->p1==1) {
+					cout << "离开聊天室"<<endl;
+				}
+				else if(data->p1==0){
+					cout << "您当前不在任何聊天室中" << endl;
+				}
+				else if (data->p1 == 2) {
+					cout << "您被管理员从频道中踢出" << endl;
+				}
 				break;
 			case _MESSAGE:
 				if (data->p1) {
-					if (strcmp(data->message, user->id)) cout << "[" << data->message << "]: " << data->message + _MAX_STRING_LENTH + 1 << endl;
+					if (strcmp(data->message, user->id)) cout << "[" << data->message << "]: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
 				}
 				else {
 					cout << "错误，您可能不在聊天室中"<<endl;

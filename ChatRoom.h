@@ -28,10 +28,13 @@ struct Channel;
 struct User {
 	SOCKADDR_IN clientAddr;
 	//当前用户的套接字地址
+
 	char id[_MAX_STRING_LENTH];
 	//(在聊天室中)当前用户的id
+
 	User * nextMember;
 	//(在聊天室中)下一个用户的ID
+
 	Channel * currentChannel;
 	//(在聊天室中)聊天室ID
 	//每个客户端在连接成功之后，都会被储存为这样一个结构
