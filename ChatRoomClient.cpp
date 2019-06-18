@@ -1,10 +1,10 @@
 #include "ChatRoomClient.h"
 #include <winsock2.h>
 using namespace std;
-User * guid=NULL;
+User * guid = NULL;
 User * user = new User;
 int threadSema = 1;
-int main() {
+int main(int argc, char * argv[]) {
 
 	//int socket_fd;
 	//socket_fd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -13,10 +13,10 @@ int main() {
 	WSADATA wsaData;
 	WSAStartup(MAKEWORD(2, 2), &wsaData);
 
-	SOCKET clientSocket = socket(PF_INET, SOCK_DGRAM, 0);//åˆ›å»ºå¥—æ¥å­—
-	SOCKADDR_IN serverAddr;//å®šä¹‰åœ°å€ç»“æ„ä½“å˜é‡
-	serverAddr.sin_family = AF_INET;//åè®®æ—
-	serverAddr.sin_port = htons(_MY_PORT);//ç«¯å£å·
+	SOCKET clientSocket = socket(PF_INET, SOCK_DGRAM, 0);//´´½¨Ì×½Ó×Ö
+	SOCKADDR_IN serverAddr;//¶¨ÒåµØÖ·½á¹¹Ìå±äÁ¿
+	serverAddr.sin_family = AF_INET;//Ğ­Òé×å
+	serverAddr.sin_port = htons(_MY_PORT);//¶Ë¿ÚºÅ
 	serverAddr.sin_addr.S_un.S_addr = inet_addr("192.168.31.24");
 	//bind(clientSocket, (SOCKADDR*)&addr, sizeof(SOCKADDR));
 
@@ -27,20 +27,19 @@ int main() {
 	SOCKADDR_IN _addrClient;//???
 	int len = sizeof(SOCKADDR);
 	string command;
-	cout << "å®¢æˆ·ç«¯" << endl;
-
+	cout << "¿Í»§¶Ë" << endl;
 	init(clientSocket, serverAddr);
-	//åˆå§‹åŒ–ï¼Œå¾—åˆ°GUID
+	//³õÊ¼»¯£¬µÃµ½GUID
 
 	HANDLE hThread = CreateThread(NULL, 0, Fun, (LPVOID*)&clientSocket, 0, NULL);
 	//CloseHandle(hThread);
 
-	//ç­‰å¾…æ¥è‡ªæ ‡å‡†è¾“å…¥çš„å‘½ä»¤
+	//µÈ´ıÀ´×Ô±ê×¼ÊäÈëµÄÃüÁî
 	while (1) {
 		cin >> command;
 		int _command = command_parse(command);
 		int p1 = 0; int p2 = 0;
-		string channelname, userid,friendid,privateMessage;
+		string channelname, userid, friendid, privateMessage;
 		Data * data = new Data;
 		switch (_command) {
 		case _QUIT: {
@@ -49,18 +48,18 @@ int main() {
 			Exit();
 		}
 		case _LIST_CHANNEL:
-			cout << "åˆ—å‡ºé¢‘é“" << endl;
+			cout << "ÁĞ³öÆµµÀ" << endl;
 			data->command = _LIST_CHANNEL;
 			data->guid = guid;
 			*data->message = '\0';
 			sendto(clientSocket, (char *)data, 28, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
 			break;
 		case _JOIN_CHANNEL:
-			cout << "åŠ å…¥é¢‘é“" << endl;
+			cout << "¼ÓÈëÆµµÀ" << endl;
 			cin >> channelname;
 			cin >> userid;
-			strcpy(user->id , userid.data());
-			//todo åˆæ³•æ€§æ£€æŸ¥
+			strcpy(user->id, userid.data());
+			//todo ºÏ·¨ĞÔ¼ì²é
 			data->command = _JOIN_CHANNEL;
 			data->guid = guid;
 
@@ -68,9 +67,9 @@ int main() {
 			strcpy(data->message + _MAX_STRING_LENTH + 1, userid.data());
 			sendto(clientSocket, (char *)data, 120, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
 			break;
-		
+
 		case _LIST_USER:
-			cout << "åˆ—å‡ºç”¨æˆ·" << endl;
+			cout << "ÁĞ³öÓÃ»§" << endl;
 			data->command = _LIST_USER;
 			data->guid = guid;
 			*data->message = '\0';
@@ -78,10 +77,10 @@ int main() {
 
 			break;
 		case _PRIVATE_MSG:
-			//messageç¬¬ä¸€æ®µæ˜¯idï¼Œç¬¬äºŒæ®µæ˜¯æ¶ˆæ¯
-			cout << "ç§èŠ" << endl;
+			//messageµÚÒ»¶ÎÊÇid£¬µÚ¶ş¶ÎÊÇÏûÏ¢
+			cout << "Ë½ÁÄ" << endl;
 			cin >> friendid;
-			getline(cin,privateMessage);
+			getline(cin, privateMessage);
 			data->command = _PRIVATE_MSG;
 			data->guid = guid;
 			strcpy(data->message, friendid.data());
@@ -90,7 +89,7 @@ int main() {
 
 			break;
 		case _LEAVE:
-			cout << "é€€å‡ºèŠå¤©å®¤"<<endl;
+			cout << "ÍË³öÁÄÌìÊÒ" << endl;
 			data->command = _LEAVE;
 			data->guid = guid;
 			*data->message = '\0';
@@ -100,17 +99,17 @@ int main() {
 		case _MESSAGE:
 			data->command = _MESSAGE;
 			data->guid = guid;
-			strcpy( data->message,command.data());
+			strcpy(data->message, command.data());
 			sendto(clientSocket, (char *)data, 1416, 0, (SOCKADDR *)&serverAddr, sizeof(serverAddr));
 			break;
 
-		case _INIT :
-			cout << "é‡æ–°åˆå§‹åŒ–" << endl;
+		case _INIT:
+			cout << "ÖØĞÂ³õÊ¼»¯" << endl;
 			reinit(clientSocket, serverAddr);
 			//WaitForSingleObject(hThread, INFINITE);
-			
-			 hThread = CreateThread(NULL, 0, Fun, (LPVOID*)&clientSocket, 0, NULL);
-			 break;
+
+			hThread = CreateThread(NULL, 0, Fun, (LPVOID*)&clientSocket, 0, NULL);
+			break;
 		default: {
 			help_message();
 			break;
@@ -121,18 +120,18 @@ int main() {
 	return 0;
 }
 void help_message() {
-	cout << "å®¢æˆ·ç«¯å¸®åŠ©ä¿¡æ¯" << endl;
-	cout << "join channel username ä»¥usernameåŠ å…¥èŠå¤©å®¤channelä¸­" << endl;
-	cout << "channels åˆ—å‡ºç°æœ‰çš„èŠå¤©å®¤" << endl;
-	cout << "list åˆ—å‡ºå½“å‰èŠå¤©å®¤çš„æ‰€æœ‰ç”¨æˆ·" << endl;
-	cout << "msg userid your_message_here ç»™ç”¨æˆ·å‘é€ç§äººæ¶ˆæ¯" << endl;
-	cout << "leave ç¦»å¼€èŠå¤©å®¤" << endl;
-	cout << "quit é€€å‡ºæœ¬ç¨‹åº" << endl;
+	cout << "¿Í»§¶Ë°ïÖúĞÅÏ¢" << endl;
+	cout << "join channel username ÒÔusername¼ÓÈëÁÄÌìÊÒchannelÖĞ" << endl;
+	cout << "channels ÁĞ³öÏÖÓĞµÄÁÄÌìÊÒ" << endl;
+	cout << "list ÁĞ³öµ±Ç°ÁÄÌìÊÒµÄËùÓĞÓÃ»§" << endl;
+	cout << "msg userid your_message_here ¸øÓÃ»§·¢ËÍË½ÈËÏûÏ¢" << endl;
+	cout << "leave Àë¿ªÁÄÌìÊÒ" << endl;
+	cout << "quit ÍË³ö±¾³ÌĞò" << endl;
 	cout << "" << endl;
 
 }
 int data_parse(Data *data) {
-	if (_LIST_CHANNEL <= data->command&& _FIRST_CONNECT >= data->command) return data->command;
+	if (_QUIT <= data->command&& _FIRST_CONNECT >= data->command) return data->command;
 	else return -1;
 }
 void Exit() {
@@ -157,24 +156,6 @@ int command_parse(string & command) {
 	return _MESSAGE;
 }
 void init(SOCKET clientSocket, SOCKADDR_IN serverAddr) {
-	Data *data=new Data;
-	data->command = _FIRST_CONNECT;
-	*(data->message) = '\0';
-	int len = sizeof(SOCKADDR);
-	char receiveBuff[30];
-	
-	int k = sendto(clientSocket, (char *)data, 30, 0, (SOCKADDR *)&serverAddr, len);
-	while (1) {
-		int recvDataSize = recvfrom(clientSocket, receiveBuff, 30, 0, (SOCKADDR*)&serverAddr, &len);
-		if (recvDataSize != -1) {
-			data = (Data*)receiveBuff;
-			guid = data->guid;
-			cout << "æˆåŠŸè¿æ¥åˆ°æœåŠ¡ç«¯ï¼åˆ†é…çš„guidä¸º"<<hex<< data->guid<< endl;
-			return; 
-		}
-	}
-}
-void reinit(SOCKET clientSocket, SOCKADDR_IN serverAddr){
 	Data *data = new Data;
 	data->command = _FIRST_CONNECT;
 	*(data->message) = '\0';
@@ -182,10 +163,28 @@ void reinit(SOCKET clientSocket, SOCKADDR_IN serverAddr){
 	char receiveBuff[30];
 
 	int k = sendto(clientSocket, (char *)data, 30, 0, (SOCKADDR *)&serverAddr, len);
-	
+	while (1) {
+		int recvDataSize = recvfrom(clientSocket, receiveBuff, 30, 0, (SOCKADDR*)&serverAddr, &len);
+		if (recvDataSize != -1) {
+			data = (Data*)receiveBuff;
+			guid = data->guid;
+			cout << "³É¹¦Á¬½Óµ½·şÎñ¶Ë£¡·ÖÅäµÄguidÎª" << hex << data->guid << endl;
+			return;
+		}
+	}
+}
+void reinit(SOCKET clientSocket, SOCKADDR_IN serverAddr) {
+	Data *data = new Data;
+	data->command = _FIRST_CONNECT;
+	*(data->message) = '\0';
+	int len = sizeof(SOCKADDR);
+	char receiveBuff[30];
+
+	int k = sendto(clientSocket, (char *)data, 30, 0, (SOCKADDR *)&serverAddr, len);
+
 }
 
-//çº¿ç¨‹ï¼Œç”¨äºæ¥å—æœåŠ¡å™¨å‘å›æ¥çš„æ¶ˆæ¯
+//Ïß³Ì£¬ÓÃÓÚ½ÓÊÜ·şÎñÆ÷·¢»ØÀ´µÄÏûÏ¢
 DWORD WINAPI Fun(LPVOID lpParamter)
 {
 	SOCKADDR_IN clientAddr;//???
@@ -196,60 +195,66 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 	SOCKET _clientSocket = *(SOCKET *)lpParamter;
 	while (1) {
 		int recvDataSize = recvfrom(_clientSocket, receiveBuff, 1420, 0, (SOCKADDR*)&clientAddr, &len);
-		
+
 		if (recvDataSize != -1) {
 			struct Data *data = (Data *)receiveBuff;
 			struct Data *sendMessage;
 			int clientCommand = data_parse((Data *)receiveBuff);
 			switch (clientCommand) {
 			case _LIST_CHANNEL:
-				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šåˆ—å‡ºèŠå¤©å®¤" << endl;
+				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºÁĞ³öÁÄÌìÊÒ" << endl;
 				for (int i = 0; i < data->p1; i++) {
-					cout << data->message+i * (_MAX_STRING_LENTH+1) << endl;
+					cout << data->message + i * (_MAX_STRING_LENTH + 1) << endl;
 				}
 				break;
 			case _JOIN_CHANNEL:
-				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼š";
-				if (data->p1) {
-					cout<<"æˆåŠŸåŠ å…¥äº†èŠå¤©å®¤ï¼";
+				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£º";
+				if (data->p1==1) {
+					cout << "³É¹¦¼ÓÈëÁËÁÄÌìÊÒ£¡" << endl;;
 
 				}
-				else {
-					cout << "åŠ å…¥é”™è¯¯." << endl;
+				else if(data->p1==0){
+					cout << "²»´æÔÚÕâ¸öÁÄÌìÊÒ. ¼ÓÈëÊ§°Ü" << endl;
+				}
+				else if (data->p1 == 2) {
+					cout << "idÖØ¸´ÁË£¬¼ÓÈëÊ§°Ü" << endl;
 				}
 				break;
 			case _LIST_USER:
-				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼š" ;
+				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£º";
 				if (data->p1) {
-					cout << "åˆ—å‡ºæ‰€æœ‰ç”¨æˆ·" << endl;
-					for (int i = 0; i > data->p2; i++) {
+					cout << "ÁĞ³öËùÓĞÓÃ»§" << endl;
+					for (int i = 0; i < data->p2; i++) {
 						cout << data->message + i * (_MAX_STRING_LENTH + 1) << endl;
 					}
 				}
 				else {
-					cout << "å¤±è´¥ï¼Œæ‚¨å¯èƒ½ä¸åœ¨èŠå¤©å®¤ä¸­" << endl;
+					cout << "Ê§°Ü£¬Äú¿ÉÄÜ²»ÔÚÁÄÌìÊÒÖĞ" << endl;
 				}
 				break;
 			case _PRIVATE_MSG:
-				//ç¬¬ä¸€æ®µæ˜¯idï¼Œç¬¬äºŒæ®µçš„message
-				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼šç§èŠ" << endl;
+				//µÚÒ»¶ÎÊÇid£¬µÚ¶ş¶ÎµÄmessage
+				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£ºË½ÁÄ" << endl;
 				if (data->p1) {
-					 cout << "[" << data->message << "]çš„ç§èŠ: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
+					cout << "[" << data->message << "]µÄË½ÁÄ: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
 				}
 				else {
-					cout << "é”™è¯¯ï¼Œæ²¡æœ‰è¿™ä¸ªæœ‹å‹" << endl;
+					cout << "´íÎó£¬Ã»ÓĞÕâ¸öÅóÓÑ" << endl;
 				}
 				break;
 			case _LEAVE:
-				cout << "æ”¶åˆ°æœåŠ¡å™¨çš„æ¶ˆæ¯ï¼š" ;
-				if (data->p1==1) {
-					cout << "ç¦»å¼€èŠå¤©å®¤"<<endl;
+				cout << "ÊÕµ½·şÎñÆ÷µÄÏûÏ¢£º";
+				if (data->p1 == 1) {
+					cout << "Àë¿ªÁÄÌìÊÒ" << endl;
 				}
-				else if(data->p1==0){
-					cout << "æ‚¨å½“å‰ä¸åœ¨ä»»ä½•èŠå¤©å®¤ä¸­" << endl;
+				else if (data->p1 == 0) {
+					cout << "Äúµ±Ç°²»ÔÚÈÎºÎÁÄÌìÊÒÖĞ" << endl;
 				}
 				else if (data->p1 == 2) {
-					cout << "æ‚¨è¢«ç®¡ç†å‘˜ä»é¢‘é“ä¸­è¸¢å‡º" << endl;
+					cout << "Äú±»¹ÜÀíÔ±´ÓÆµµÀÖĞÌß³ö" << endl;
+				}
+				else if (data->p1 == 3) {
+					cout << "¹ÜÀíÔ±½âÉ¢ÁËÆµµÀ" << endl;
 				}
 				break;
 			case _MESSAGE:
@@ -257,20 +262,25 @@ DWORD WINAPI Fun(LPVOID lpParamter)
 					if (strcmp(data->message, user->id)) cout << "[" << data->message << "]: \n\t" << data->message + _MAX_STRING_LENTH + 1 << endl;
 				}
 				else {
-					cout << "é”™è¯¯ï¼Œæ‚¨å¯èƒ½ä¸åœ¨èŠå¤©å®¤ä¸­"<<endl;
+					cout << "´íÎó£¬Äú¿ÉÄÜ²»ÔÚÁÄÌìÊÒÖĞ" << endl;
 				}
-			//	sendto(serverSocket, temp, 10, 0, (SOCKADDR *)&serverAddr, len);
+				//	sendto(serverSocket, temp, 10, 0, (SOCKADDR *)&serverAddr, len);
 				break;
 			case _FIRST_CONNECT:
-				cout << "æˆåŠŸè¿æ¥åˆ°æœåŠ¡ç«¯ï¼åˆ†é…çš„guidä¸º" << hex << data->guid << endl;
+				cout << "³É¹¦Á¬½Óµ½·şÎñ¶Ë£¡·ÖÅäµÄguidÎª" << hex << data->guid << endl;
 				guid = data->guid;
 				break;
+			case _QUIT:
+				cout << "·şÎñÆ÷ÒÑÍË³ö£¡"<< endl;
+				guid = data->guid;
+				exit(0);
+				break;
 			default:
-				cout << "æœåŠ¡å™¨å‘äº†ä¸ªå±" << endl;
+				cout << "·şÎñÆ÷·¢ËÍ²»Ã÷ÏûÏ¢" << endl;
 				break;
 			}
 		}
 	}
-	cout << "ç›‘å¬çº¿ç¨‹è¢«ç»ˆæ­¢äº†" << endl;
+	cout << "¼àÌıÏß³Ì±»ÖÕÖ¹ÁË" << endl;
 	return 0;
 }

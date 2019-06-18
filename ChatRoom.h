@@ -22,33 +22,33 @@
 #define _MAX_STRING_LENTH 31 
 using  namespace std;
 struct Channel;
-//å°†å®¢æˆ·ç«¯å‘æ¥çš„æ•°æ®è§£æžä¸ºè¿™ä¸ªç»“æž„
+//½«¿Í»§¶Ë·¢À´µÄÊý¾Ý½âÎöÎªÕâ¸ö½á¹¹
 
 
 struct User {
 	SOCKADDR_IN clientAddr;
-	//å½“å‰ç”¨æˆ·çš„å¥—æŽ¥å­—åœ°å€
+	//µ±Ç°ÓÃ»§µÄÌ×½Ó×ÖµØÖ·
 
 	char id[_MAX_STRING_LENTH];
-	//(åœ¨èŠå¤©å®¤ä¸­)å½“å‰ç”¨æˆ·çš„id
+	//(ÔÚÁÄÌìÊÒÖÐ)µ±Ç°ÓÃ»§µÄid
 
 	User * nextMember;
-	//(åœ¨èŠå¤©å®¤ä¸­)ä¸‹ä¸€ä¸ªç”¨æˆ·çš„ID
+	//(ÔÚÁÄÌìÊÒÖÐ)ÏÂÒ»¸öÓÃ»§µÄID
 
 	Channel * currentChannel;
-	//(åœ¨èŠå¤©å®¤ä¸­)èŠå¤©å®¤ID
-	//æ¯ä¸ªå®¢æˆ·ç«¯åœ¨è¿žæŽ¥æˆåŠŸä¹‹åŽï¼Œéƒ½ä¼šè¢«å‚¨å­˜ä¸ºè¿™æ ·ä¸€ä¸ªç»“æž„
+	//(ÔÚÁÄÌìÊÒÖÐ)ÁÄÌìÊÒID
+	//Ã¿¸ö¿Í»§¶ËÔÚÁ¬½Ó³É¹¦Ö®ºó£¬¶¼»á±»´¢´æÎªÕâÑùÒ»¸ö½á¹¹
 };
 struct Data {
 	int command;
-	//æŽ§åˆ¶å‘½ä»¤çš„ç±»åž‹
+	//¿ØÖÆÃüÁîµÄÀàÐÍ
 	User * guid;
-	//å”¯ä¸€æ ‡è¯†ç¬¦ã€‚æ¯ä¸ªå®¢æˆ·ç«¯æœ‰è‡ªå·±çš„å”¯ä¸€æ ‡è¯†ç¬¦ï¼Œæ˜¯ä¸€ä¸ªåœ¨æœåŠ¡ç«¯é‡ŒæŒ‡å‘Userçš„æŒ‡é’ˆ
+	//Î¨Ò»±êÊ¶·û¡£Ã¿¸ö¿Í»§¶ËÓÐ×Ô¼ºµÄÎ¨Ò»±êÊ¶·û£¬ÊÇÒ»¸öÔÚ·þÎñ¶ËÀïÖ¸ÏòUserµÄÖ¸Õë
 	int p1;
-	//åœ¨è¿”å›žæ—¶ï¼Œ1ä¸ºæˆåŠŸï¼Œ0ä¸ºå‡ºé”™
+	//ÔÚ·µ»ØÊ±£¬1Îª³É¹¦£¬0Îª³ö´í
 	int p2;
-	//ç¬¬äºŒä¸ªå‚æ•°ä¼ é€’ä¸€äº›å…¶ä»–ä¿¡æ¯
-	char message[1400];//é¢‘é“å+ID or ID+èŠå¤©ä¿¡æ¯
+	//µÚ¶þ¸ö²ÎÊý´«µÝÒ»Ð©ÆäËûÐÅÏ¢
+	char message[1400];//ÆµµÀÃû+ID or ID+ÁÄÌìÐÅÏ¢
 };
 
 

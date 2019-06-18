@@ -1,6 +1,6 @@
 
 //
-// Created by ï¿½ï¿½È» on 2019/6/1.
+// Created by ÍõÈ» on 2019/6/1.
 //
 
 #ifndef CHATROOM_CHATROOMSERVER_H
@@ -9,7 +9,7 @@
 
 
 struct Memember {
-	
+
 };
 
 #define _ENTERCHANNEL 11
@@ -19,12 +19,12 @@ struct Memember {
 void Exit();
 int command_parse(string command);
 int data_parse(Data *data);
-Data* make_message(int command,int p1,void * p2 );
+Data* make_message(int command, int p1, void * p2);
 DWORD WINAPI listen_to_client(LPVOID lpParamter);
-DWORD WINAPI check_user_alive(LPVOID lpParamter);
-User * add_to_user( SOCKADDR_IN addrClient);
-void add_user_to_channel(Channel *_channel, User * _user);
-int delete_user_from_channel(Channel *_channel, char * _user);
-void add_to_channel(string channelName);
+User * add_to_user(SOCKADDR_IN addrClient);
+int add_user_to_channel(Channel *_channel, User * _user, char * id);
+User* delete_user_from_channel(Channel *_channel, const char * _user);
+int add_to_channel(string channelName);
 Channel * find_channel_by_name(const char *);
+int find_channel_by_name2(const char *);
 #endif //CHATROOM_CHATROOMSERVER_H
